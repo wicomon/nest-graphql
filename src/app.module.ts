@@ -6,6 +6,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { ItemsModule } from './items/items.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -37,6 +38,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     }),
 
     ItemsModule,
+
+    UsersModule,
   ],
   controllers: [],
   providers: [],
