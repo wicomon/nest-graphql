@@ -22,6 +22,7 @@ type Query {
   item(id: String!): Item!
   users: [User!]!
   user(id: ID!): User!
+  revalidate: String!
 }
 
 type Mutation {
@@ -31,6 +32,8 @@ type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: ID!): User!
+  signup: String!
+  login: String!
 }
 
 input CreateItemInput {
