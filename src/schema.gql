@@ -17,6 +17,11 @@ type User {
   isActive: Boolean!
 }
 
+type AuthResponse {
+  token: String!
+  user: User!
+}
+
 type Query {
   items: [Item!]!
   item(id: String!): Item!
@@ -29,11 +34,11 @@ type Mutation {
   createItem(createItemInput: CreateItemInput!): Item!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   removeItem(id: String!): Item!
-  createUser(createUserInput: CreateUserInput!): User!
+  createUser(createUserInput: SignupInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: ID!): User!
-  signup: String!
-  login: String!
+  signup(signupInput: SignupInput!): AuthResponse!
+  login(loginInput: LoginInput!): AuthResponse!
 }
 
 input CreateItemInput {
@@ -49,13 +54,19 @@ input UpdateItemInput {
   id: String!
 }
 
-input CreateUserInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+input SignupInput {
+  email: String!
+  fullName: String!
+  password: String!
 }
 
 input UpdateUserInput {
   """Example field (placeholder)"""
   exampleField: Int
   id: Int!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
 }

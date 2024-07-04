@@ -1,19 +1,60 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserInput } from './dto/create-user.input';
-import { UpdateUserInput } from './dto/update-user.input';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { CreateUserInput } from './dto/inputs/create-user.input';
+import { UpdateUserInput } from './dto/inputs/update-user.input';
+import { SignupInput } from 'src/auth/dto/inputs/signup.input';
+import { User } from './entities/user.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  create(createUserInput: CreateUserInput) {
-    return 'This action adds a new user';
+
+  private logger = new Logger();
+
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
+  async create(signupInput: SignupInput): Promise<User> {
+    try {
+      const newUser = this.userRepository.create({
+        ...signupInput,
+        password: bcrypt.hashSync(signupInput.password, 10)
+      });
+      return await this.userRepository.save(newUser);
+    } catch (error) {
+      // console.log(error);
+      this.handleDBErrors(error)
+    }
   }
 
   findAll() {
     return `This action returns all users`;
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} user`;
+  async findOne(email: string): Promise<User> {
+    try {
+      const user = await this.userRepository.findOneByOrFail({email})
+      return user;
+      
+    } catch (error) {
+      this.handleDBErrors(error)
+    }
+  }
+  async findOneByEmail(email: string): Promise<User> {
+    try {
+      const user = await this.userRepository.findOneByOrFail({email})
+      return user;
+      
+    } catch (error) {
+      throw new NotFoundException('Email not found')
+      // this.handleDBErrors({
+      //   code: 'error-user-not-found',
+      //   detail: 'No se encontro el usuario'
+      // })
+    }
   }
 
   update(id: string, updateUserInput: UpdateUserInput) {
@@ -22,5 +63,14 @@ export class UsersService {
 
   remove(id: string) {
     return `This action removes a #${id} user`;
+  }
+  
+  private handleDBErrors(error: any): never {
+    if( error.code === '23505') throw new BadRequestException(error.detail);
+    if( error.code === 'error-user-not-found') throw new BadRequestException(error.detail);
+    
+    this.logger.error(error)
+
+    throw new InternalServerErrorException('Error en el servicio')
   }
 }
