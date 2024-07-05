@@ -1,6 +1,12 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
-import { SignupInput, AuthResponse, LoginInput } from './dto';
+import { SignupInput, LoginInput } from './dto';
+import { AuthResponse } from './types/auth-response.type';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { User } from 'src/users/entities/user.entity';
+import { ValidRoles } from './enum/valid-roles.enum';
 
 @Resolver()
 export class AuthResolver {
@@ -22,8 +28,12 @@ export class AuthResolver {
     return this.authService.login(loginInput);
   }
 
-  @Query(() => String , {name: 'revalidate'})
-  revalidateToken(){
-    return this.authService.revalidateToken();
+  @Query(() => AuthResponse , {name: 'revalidate'})
+  @UseGuards( JwtAuthGuard )
+  revalidateToken(
+    @CurrentUser(/* [ValidRoles.admin] */ ) user: User
+  ): AuthResponse{
+    // console.log('inside revalidate',user)
+    return this.authService.revalidateToken(user);
   }
 }

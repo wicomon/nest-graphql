@@ -1,23 +1,29 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { SignupInput } from './dto/inputs/signup.input';
-import { AuthResponse } from './dto/types/auth-response.type';
+import { AuthResponse } from './types/auth-response.type';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
 import { LoginInput } from './dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UsersService) {}
+  constructor(
+    private readonly userService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  private getJwtToken(userId: string) {
+    return this.jwtService.sign({ id: userId });
+  }
 
   async signup(signupInput: SignupInput): Promise<AuthResponse> {
     // console.log({signupInput})
 
-    // TODO crear usuario
     const user = await this.userService.create(signupInput);
 
-    // todo CREAR JWT
-    const token = 'token';
+    const token = this.getJwtToken(user.id);
 
     return {
       token,
@@ -29,15 +35,32 @@ export class AuthService {
     const { email, password } = loginInput;
     const user = await this.userService.findOneByEmail(email);
 
-    if(!bcrypt.compareSync(password, user.password)) throw new BadRequestException('Email/password do not match')
+    if (!bcrypt.compareSync(password, user.password))
+      throw new BadRequestException('Email/password do not match');
 
-      // TODO genera el jtw
-    const token = 'token';
+    const token = this.getJwtToken(user.id);
     return {
       token,
       user,
     };
   }
 
-  revalidateToken() {}
+  revalidateToken(user: User): AuthResponse {
+    const token = this.getJwtToken(user.id);
+
+    return {
+      token,
+      user
+    }
+  }
+
+  async validateUser(id: string): Promise<User>{
+    const user = await this.userService.findOneById(id);
+
+    if(!user.isActive) throw new UnauthorizedException('User inactive')
+
+    delete user.password;
+
+    return user;
+  }
 }

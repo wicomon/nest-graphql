@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
-import { CreateUserInput } from './dto/inputs/create-user.input';
 import { UpdateUserInput } from './dto/inputs/update-user.input';
 import { SignupInput } from 'src/auth/dto/inputs/signup.input';
 import { User } from './entities/user.entity';
@@ -50,6 +49,17 @@ export class UsersService {
       
     } catch (error) {
       throw new NotFoundException('Email not found')
+      // this.handleDBErrors({
+      //   code: 'error-user-not-found',
+      //   detail: 'No se encontro el usuario'
+      // })
+    }
+  }
+  async findOneById(id: string): Promise<User> {
+    try {
+      return await this.userRepository.findOneByOrFail({id});
+    } catch (error) {
+      throw new NotFoundException(`User with ${id} not found`)
       // this.handleDBErrors({
       //   code: 'error-user-not-found',
       //   detail: 'No se encontro el usuario'
