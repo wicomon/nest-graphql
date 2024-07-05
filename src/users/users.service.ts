@@ -30,7 +30,7 @@ export class UsersService {
   }
 
   findAll() {
-    return `This action returns all users`;
+    return [];
   }
 
   async findOne(email: string): Promise<User> {

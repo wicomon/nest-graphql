@@ -3,6 +3,7 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { UpdateUserInput } from './dto';
 import { SignupInput } from 'src/auth/dto/inputs/signup.input';
+import { ValidRolesArgs } from './dto/args/role.arg';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -14,7 +15,10 @@ export class UsersResolver {
   }
 
   @Query(() => [User], { name: 'users' })
-  findAll() {
+  findAll(
+    @Args() validRoles: ValidRolesArgs
+  ) {
+    console.log(validRoles.roles)
     return this.usersService.findAll();
   }
 
