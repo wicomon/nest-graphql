@@ -11,7 +11,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true
     })
   )
-
+  console.log('starting');
   await app.listen(8000);
 
   // console.log(`Application is running on: ${await app.getUrl()}`);
