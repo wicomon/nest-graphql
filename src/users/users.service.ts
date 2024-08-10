@@ -31,7 +31,12 @@ export class UsersService {
   }
 
   findAll(roles: ValidRoles[]) {
-    if(roles.length === 0 ) return this.userRepository.find();
+    if(roles.length === 0 ) return this.userRepository.find({
+      // ? Not necessary bc we active "lazy" on relationship
+      // relations: {
+      //   updatedBy: true
+      // }
+    });
 
     // Tenemos roles ['admin, 'superUser']
     return this.userRepository.createQueryBuilder()
@@ -74,12 +79,24 @@ export class UsersService {
     }
   }
 
-  update(id: string, updateUserInput: UpdateUserInput) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserInput: UpdateUserInput, adminUser: User): Promise<User> {
+    try {
+      const user = await this.userRepository.preload({
+        ...updateUserInput
+      });
+      // console.log({user})
+      user.updatedBy = adminUser;
+      return await this.userRepository.save(user);
+    } catch (error) {
+      this.handleDBErrors(error);
+    }
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} user`;
+  async block(id: string, adminUser: User): Promise<User> {
+    const userToBlock = await this.findOneById(id)
+    userToBlock.isActive = false;
+    userToBlock.updatedBy = adminUser;
+    return await this.userRepository.save(userToBlock);
   }
   
   private handleDBErrors(error: any): never {

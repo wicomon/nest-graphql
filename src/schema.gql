@@ -15,6 +15,7 @@ type User {
   email: String!
   roles: [String!]!
   isActive: Boolean!
+  updatedBy: User
 }
 
 type AuthResponse {
@@ -43,9 +44,9 @@ type Mutation {
   createItem(createItemInput: CreateItemInput!): Item!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   removeItem(id: String!): Item!
-  createUser(createUserInput: SignupInput!): User!
-  updateUser(updateUserInput: UpdateUserInput!): User!
-  removeUser(id: ID!): User!
+  userCreate(createUserInput: SignupInput!): User!
+  userUpdate(updateUserInput: UpdateUserInput!): User!
+  userBlock(id: ID!): User!
   signup(signupInput: SignupInput!): AuthResponse!
   login(loginInput: LoginInput!): AuthResponse!
 }
@@ -70,9 +71,12 @@ input SignupInput {
 }
 
 input UpdateUserInput {
-  """Example field (placeholder)"""
-  exampleField: Int
-  id: Int!
+  email: String
+  fullName: String
+  password: String
+  id: ID!
+  roles: [ValidRoles!]
+  isActive: Boolean
 }
 
 input LoginInput {
