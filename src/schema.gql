@@ -24,14 +24,14 @@ type AuthResponse {
 }
 
 type Query {
-  items: [Item!]!
-  item(id: String!): Item!
+  revalidate: AuthResponse!
   users(
     """Valid roles for users"""
     roles: [ValidRoles!] = []
   ): [User!]!
   user(id: ID!): User!
-  revalidate: AuthResponse!
+  items: [Item!]!
+  item(id: String!): Item!
 }
 
 enum ValidRoles {
@@ -41,14 +41,34 @@ enum ValidRoles {
 }
 
 type Mutation {
-  createItem(createItemInput: CreateItemInput!): Item!
-  updateItem(updateItemInput: UpdateItemInput!): Item!
-  removeItem(id: String!): Item!
+  signup(signupInput: SignupInput!): AuthResponse!
+  login(loginInput: LoginInput!): AuthResponse!
   userCreate(createUserInput: SignupInput!): User!
   userUpdate(updateUserInput: UpdateUserInput!): User!
   userBlock(id: ID!): User!
-  signup(signupInput: SignupInput!): AuthResponse!
-  login(loginInput: LoginInput!): AuthResponse!
+  createItem(createItemInput: CreateItemInput!): Item!
+  updateItem(updateItemInput: UpdateItemInput!): Item!
+  removeItem(id: String!): Item!
+}
+
+input SignupInput {
+  email: String!
+  fullName: String!
+  password: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input UpdateUserInput {
+  email: String
+  fullName: String
+  password: String
+  id: ID!
+  roles: [ValidRoles!]
+  isActive: Boolean
 }
 
 input CreateItemInput {
@@ -62,24 +82,4 @@ input UpdateItemInput {
   quantity: Float
   quantityUnits: String
   id: String!
-}
-
-input SignupInput {
-  email: String!
-  fullName: String!
-  password: String!
-}
-
-input UpdateUserInput {
-  email: String
-  fullName: String
-  password: String
-  id: ID!
-  roles: [ValidRoles!]
-  isActive: Boolean
-}
-
-input LoginInput {
-  email: String!
-  password: String!
 }
