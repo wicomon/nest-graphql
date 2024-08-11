@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -65,6 +66,8 @@ import { JwtService } from '@nestjs/jwt';
     UsersModule,
 
     AuthModule,
+
+    CommonModule,
   ],
   controllers: [],
   providers: [],
