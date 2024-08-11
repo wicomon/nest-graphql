@@ -9,9 +9,9 @@ export class CreateItemInput {
   @IsString()
   name: string;
 
-  @Field(() => Float, {  })
-  @Min(0)
-  quantity: number;
+  // @Field(() => Float, {  })
+  // @Min(0)
+  // quantity: number;
 
   @Field(() => String, { nullable: true  })
   @IsString()
